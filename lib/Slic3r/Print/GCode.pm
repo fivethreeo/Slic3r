@@ -271,12 +271,12 @@ sub export {
                         $self->_second_layer_things_done(0);
                     }
                 }
-                if ($at_z == -1) {
-                    $at_z = $self->config->extruder_clearance_height;
-                }
-                else {
-                    $at_z += $self->config->extruder_clearance_height;
-                }
+            }
+            if ($at_z == -1) {
+                $at_z = $self->config->extruder_clearance_height;
+            }
+            else {
+                $at_z += $self->config->extruder_clearance_height;
             }
         }
     } else {
