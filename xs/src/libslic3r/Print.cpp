@@ -657,7 +657,7 @@ Print::validate() const
             }
         }
         
-        // check vertical clearance
+        /* check vertical clearance
         {
             std::vector<coord_t> object_height;
             FOREACH_OBJECT(this, i_object) {
@@ -671,6 +671,7 @@ Print::validate() const
             if (!object_height.empty() && object_height.back() > scale_(this->config.extruder_clearance_height.value))
                 return "Some objects are too tall and cannot be printed without extruder collisions.";
         }
+        */
     } // end if (this->config.complete_objects)
     
     if (this->config.spiral_vase) {
