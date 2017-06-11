@@ -220,49 +220,63 @@ sub export {
         # print objects from the smallest to the tallest to avoid collisions
         # when moving onto next object starting point
         my @obj_idx = sort { $self->objects->[$a]->size->z <=> $self->objects->[$b]->size->z } 0..($self->print->object_count - 1);
-        
-        my $finished_objects = 0;
-        for my $obj_idx (@obj_idx) {
-            my $object = $self->objects->[$obj_idx];
-            for my $copy (@{ $self->objects->[$obj_idx]->_shifted_copies }) {
-                # move to the origin position for the copy we're going to print.
-                # this happens before Z goes down to layer 0 again, so that 
-                # no collision happens hopefully.
-                if ($finished_objects > 0) {
-                    $gcodegen->set_origin(Slic3r::Pointf->new(map unscale $copy->[$_], X,Y));
-                    $gcodegen->set_enable_cooling_markers(0);  # we're not filtering these moves through CoolingBuffer
-                    $gcodegen->avoid_crossing_perimeters->set_use_external_mp_once(1);
-                    print $fh $gcodegen->retract;
-                    print $fh $gcodegen->travel_to(
-                        Slic3r::Point->new(0,0),
-                        EXTR_ROLE_NONE,
-                        'move to origin position for next object',
-                    );
-                    $gcodegen->set_enable_cooling_markers(1);
-                    
-                    # disable motion planner when traveling to first object point
-                    $gcodegen->avoid_crossing_perimeters->set_disable_once(1);
-                }
-                
-                my @layers = sort { $a->print_z <=> $b->print_z } @{$object->layers}, @{$object->support_layers};
-                for my $layer (@layers) {
-                    # if we are printing the bottom layer of an object, and we have already finished
-                    # another one, set first layer temperatures. this happens before the Z move
-                    # is triggered, so machine has more time to reach such temperatures
-                    if ($layer->id == 0 && $finished_objects > 0) {
-                        printf $fh $gcodegen->writer->set_bed_temperature($self->config->first_layer_bed_temperature),
-                            if $self->config->first_layer_bed_temperature
-                            && $self->config->has_heatbed
-                            && $self->config->between_objects_gcode !~ /M(?:190|140)/i;
-                        $self->_print_first_layer_temperature(0)
-                            if $self->config->between_objects_gcode !~ /M(?:109|104)/i;
-                        printf $fh "%s\n", $gcodegen->placeholder_parser->process($self->config->between_objects_gcode);
+
+        my $max_z = $self->objects->[$self->print->object_count - 1]->size->z;
+        my $visited_objects = 0;
+        my $at_z = -1;
+        while ($at_z > $max_z) {
+            for my $obj_idx (@obj_idx) {
+                my $object = $self->objects->[$obj_idx];
+                if ($object->size->z > $at_z) {
+                    for my $copy (@{ $self->objects->[$obj_idx]->_shifted_copies }) {
+                        # move to the origin position for the copy we're going to print.
+                        # this happens before Z goes down to layer 0 again, so that 
+                        # no collision happens hopefully.
+                        if ($visited_objects > 0) {
+                            $gcodegen->set_origin(Slic3r::Pointf->new(map unscale $copy->[$_], X,Y));
+                            $gcodegen->set_enable_cooling_markers(0);  # we're not filtering these moves through CoolingBuffer
+                            $gcodegen->avoid_crossing_perimeters->set_use_external_mp_once(1);
+                            print $fh $gcodegen->retract;
+                            print $fh $gcodegen->travel_to(
+                                Slic3r::Point->new(0,0),
+                                EXTR_ROLE_NONE,
+                                'move to origin position for next object',
+                            );
+                            $gcodegen->set_enable_cooling_markers(1);
+
+                            # disable motion planner when traveling to first object point
+                            $gcodegen->avoid_crossing_perimeters->set_disable_once(1);
+                        }
+
+                        my @layers = sort { $a->print_z <=> $b->print_z } @{$object->layers}, @{$object->support_layers};
+                        for my $layer (@layers) {
+                            if ($layer->print_z > $at_z) {
+                                # if we are printing the bottom layer of an object, and we have already finished
+                                # another one, set first layer temperatures. this happens before the Z move
+                                # is triggered, so machine has more time to reach such temperatures
+                                if ($layer->id == 0 && $visited_objects > 0) {
+                                    printf $fh $gcodegen->writer->set_bed_temperature($self->config->first_layer_bed_temperature),
+                                        if $self->config->first_layer_bed_temperature
+                                        && $self->config->has_heatbed
+                                        && $self->config->between_objects_gcode !~ /M(?:190|140)/i;
+                                    $self->_print_first_layer_temperature(0)
+                                        if $self->config->between_objects_gcode !~ /M(?:109|104)/i;
+                                    printf $fh "%s\n", $gcodegen->placeholder_parser->process($self->config->between_objects_gcode);
+                                }
+                                $self->process_layer($layer, [$copy]);
+                            }
+                        }
+                        $self->flush_filters;
+                        $visited_objects++;
+                        $self->_second_layer_things_done(0);
                     }
-                    $self->process_layer($layer, [$copy]);
                 }
-                $self->flush_filters;
-                $finished_objects++;
-                $self->_second_layer_things_done(0);
+                if ($at_z == -1) {
+                    $at_z = $self->config->extruder_clearance_height;
+                }
+                else {
+                    $at_z += $self->config->extruder_clearance_height;
+                }
             }
         }
     } else {
