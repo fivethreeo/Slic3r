@@ -224,7 +224,7 @@ sub export {
         my $max_z = $self->objects->[$self->print->object_count - 1]->size->z;
         my $visited_objects = 0;
         my $at_z = -1;
-        while ($at_z > $max_z) {
+        while ($at_z < $max_z) {
             for my $obj_idx (@obj_idx) {
                 my $object = $self->objects->[$obj_idx];
                 if ($object->size->z > $at_z) {
