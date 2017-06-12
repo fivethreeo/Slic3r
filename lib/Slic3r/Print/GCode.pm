@@ -223,14 +223,17 @@ sub export {
 
         my $max_z = $self->objects->[$self->print->object_count - 1]->size->z;
         my $visited_objects = 0;
-        my $at_z = -1;
-        while ($at_z < $max_z) {
+        my $from_z = 0;
+        my $to_z = scale($self->config->extruder_clearance_height);
+
+        while ($to_z < $max_z) {
+
             for my $obj_idx (@obj_idx) {
                 my $object = $self->objects->[$obj_idx];
-                if ($object->size->z > $at_z) {
+                if ($object->size->z > $to_z) {
                     for my $copy (@{ $self->objects->[$obj_idx]->_shifted_copies }) {
                         # move to the origin position for the copy we're going to print.
-                        # this happens before Z goes down to layer 0 again, so that 
+                        # this happens before Z goes down to layer 0 again, so that
                         # no collision happens hopefully.
                         if ($visited_objects > 0) {
                             $gcodegen->set_origin(Slic3r::Pointf->new(map unscale $copy->[$_], X,Y));
@@ -250,7 +253,8 @@ sub export {
 
                         my @layers = sort { $a->print_z <=> $b->print_z } @{$object->layers}, @{$object->support_layers};
                         for my $layer (@layers) {
-                            if ($layer->print_z > $at_z) {
+                            my $print_z = scale($layer->print_z);
+                            if ($print_z > $from_z && $print_z < $to_z) {
                                 # if we are printing the bottom layer of an object, and we have already finished
                                 # another one, set first layer temperatures. this happens before the Z move
                                 # is triggered, so machine has more time to reach such temperatures
@@ -272,12 +276,10 @@ sub export {
                     }
                 }
             }
-            if ($at_z == -1) {
-                $at_z = $self->config->extruder_clearance_height;
-            }
-            else {
-                $at_z += $self->config->extruder_clearance_height;
-            }
+
+            $from_z += scale($self->config->extruder_clearance_height);
+            $to_z += scale($self->config->extruder_clearance_height);
+
         }
     } else {
         # order objects using a nearest neighbor search
