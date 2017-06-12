@@ -89,6 +89,7 @@ use Slic3r::Test;
     my $config = Slic3r::Config->new_from_defaults;
     $config->set('gcode_comments', 1);
     $config->set('complete_objects', 1);
+    $config->set('extruder_clearance_height', 99999);
     $config->set('extrusion_axis', 'A');
     $config->set('start_gcode', '');  # prevent any default extra Z move
     $config->set('layer_height', 0.4);
