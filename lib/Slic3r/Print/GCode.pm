@@ -223,7 +223,7 @@ sub export {
 
         my $max_z = $self->objects->[$self->print->object_count - 1]->size->z;
         my $visited_objects = 0;
-        my $from_z = 0;
+        my $from_z = -1;
         my $to_z = scale($self->config->extruder_clearance_height);
 
         while ($to_z < $max_z) {
@@ -277,9 +277,8 @@ sub export {
                 }
             }
 
-            $from_z += scale($self->config->extruder_clearance_height);
+            $from_z = $to_z + scale($self->config->extruder_clearance_height);
             $to_z += scale($self->config->extruder_clearance_height);
-
         }
     } else {
         # order objects using a nearest neighbor search
