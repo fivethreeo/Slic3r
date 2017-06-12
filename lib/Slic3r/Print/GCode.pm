@@ -254,7 +254,7 @@ sub export {
                         my @layers = sort { $a->print_z <=> $b->print_z } @{$object->layers}, @{$object->support_layers};
                         for my $layer (@layers) {
                             my $print_z = scale($layer->print_z);
-                            if ($print_z > $from_z && $print_z < $to_z) {
+                            if ($print_z >= $from_z && $print_z < $to_z) {
                                 # if we are printing the bottom layer of an object, and we have already finished
                                 # another one, set first layer temperatures. this happens before the Z move
                                 # is triggered, so machine has more time to reach such temperatures
