@@ -134,7 +134,7 @@ use Slic3r::Test;
 {
     my $config = Slic3r::Config->new_from_defaults;
     $config->set('complete_objects', 1);
-    $config->set('extruder_clearance_height', 99999);
+    $config->set('extruder_clearance_height', 30);
     $config->set('between_objects_gcode', '_MY_CUSTOM_GCODE_');
     my $print = Slic3r::Test::init_print('20mm_cube', config => $config, duplicate => 3);
     my $gcode = Slic3r::Test::gcode($print);
