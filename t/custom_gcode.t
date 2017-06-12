@@ -37,7 +37,6 @@ use Slic3r::Test;
         
         1;
     };
-    $config->set('extruder_clearance_height', 99999);
     $config->set('start_gcode', '_MY_CUSTOM_START_GCODE_');  # to avoid dealing with the nozzle lift in start G-code
     $config->set('layer_gcode', '_MY_CUSTOM_LAYER_GCODE_');
     ok $test->(), "custom layer G-code is applied after Z move and before other moves";
@@ -135,6 +134,7 @@ use Slic3r::Test;
 {
     my $config = Slic3r::Config->new_from_defaults;
     $config->set('complete_objects', 1);
+    $config->set('extruder_clearance_height', 99999);
     $config->set('between_objects_gcode', '_MY_CUSTOM_GCODE_');
     my $print = Slic3r::Test::init_print('20mm_cube', config => $config, duplicate => 3);
     my $gcode = Slic3r::Test::gcode($print);
