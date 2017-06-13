@@ -37,6 +37,7 @@ use Slic3r::Test;
         
         1;
     };
+    
     $config->set('start_gcode', '_MY_CUSTOM_START_GCODE_');  # to avoid dealing with the nozzle lift in start G-code
     $config->set('layer_gcode', '_MY_CUSTOM_LAYER_GCODE_');
     ok $test->(), "custom layer G-code is applied after Z move and before other moves";
