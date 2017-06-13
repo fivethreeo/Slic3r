@@ -277,7 +277,7 @@ sub export {
                 }
             }
 
-            $from_z = $to_z + scale($self->config->extruder_clearance_height);
+            $from_z = $to_z;
             $to_z += scale($self->config->extruder_clearance_height);
         }
     } else {
