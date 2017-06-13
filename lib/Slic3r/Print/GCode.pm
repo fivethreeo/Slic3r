@@ -226,11 +226,10 @@ sub export {
         my $from_z = -1;
         my $to_z = scale($self->config->extruder_clearance_height);
 
-        while ($to_z < $max_z) {
-
+        while ($to_z <= $max_z) {
             for my $obj_idx (@obj_idx) {
                 my $object = $self->objects->[$obj_idx];
-                if ($object->size->z > $to_z) {
+                if ($object->size->z > $from_z) {
                     for my $copy (@{ $self->objects->[$obj_idx]->_shifted_copies }) {
                         # move to the origin position for the copy we're going to print.
                         # this happens before Z goes down to layer 0 again, so that
