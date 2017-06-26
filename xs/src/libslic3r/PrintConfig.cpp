@@ -158,6 +158,13 @@ PrintConfigDef::PrintConfigDef()
     def->cli = "complete-objects!";
     def->default_value = new ConfigOptionBool(false);
 
+    def = this->add("complete_objects_clearance", coBool);
+    def->label = "Complete per clearance height";
+    def->category = "Advanced";
+    def->tooltip = "When printing multiple objects or copies, this feature will complete parts of a object within clearance height before moving onto next one (and starting it from its bottom layer or previous clearance height) and will be repeated until all objects are completed. This feature is useful to save time avoiding extra non-print moves.";
+    def->cli = "complete-objects-clearance!";
+    def->default_value = new ConfigOptionBool(false);
+
     def = this->add("cooling", coBool);
     def->label = "Enable auto cooling";
     def->tooltip = "This flag enables the automatic cooling logic that adjusts print speed and fan speed according to layer printing time.";
