@@ -701,6 +701,7 @@ sub build {
         {
             my $optgroup = $page->new_optgroup('Sequential printing');
             $optgroup->append_single_option_line('complete_objects');
+            $optgroup->append_single_option_line('complete_objects_clearance');
             my $line = Slic3r::GUI::OptionsGroup::Line->new(
                 label => 'Extruder clearance (mm)',
             );
@@ -923,7 +924,7 @@ sub _update {
     
     my $have_sequential_printing = $config->complete_objects;
     $self->get_field($_)->toggle($have_sequential_printing)
-        for qw(extruder_clearance_radius extruder_clearance_height);
+        for qw(complete_objects_clearance extruder_clearance_radius extruder_clearance_height);
     
     my $have_ooze_prevention = $config->ooze_prevention;
     $self->get_field($_)->toggle($have_ooze_prevention)
