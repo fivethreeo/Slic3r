@@ -656,6 +656,21 @@ Print::validate() const
                 }
             }
         }
+        
+        // check vertical clearance
+        if (!this->config.complete_objects_clearance) {
+            std::vector<coord_t> object_height;
+            FOREACH_OBJECT(this, i_object) {
+                PrintObject* object = *i_object;
+                object_height.insert(object_height.end(), object->copies().size(), object->size.z);
+            }
+            std::sort(object_height.begin(), object_height.end());
+            // ignore the tallest *copy* (this is why we repeat height for all of them):
+            // it will be printed as last one so its height doesn't matter
+            object_height.pop_back();
+            if (!object_height.empty() && object_height.back() > scale_(this->config.extruder_clearance_height.value))
+                return "Some objects are too tall and cannot be printed without extruder collisions.";
+        }
     } // end if (this->config.complete_objects)
     
     if (this->config.spiral_vase) {
