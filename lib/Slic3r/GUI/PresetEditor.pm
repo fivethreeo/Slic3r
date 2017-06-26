@@ -461,7 +461,7 @@ sub options {
         support_material_interface_layers support_material_interface_spacing
         support_material_contact_distance support_material_buildplate_only dont_support_bridges
         notes
-        complete_objects extruder_clearance_radius extruder_clearance_height
+        complete_objects complete_objects_clearance extruder_clearance_radius extruder_clearance_height
         gcode_comments output_filename_format
         post_process
         perimeter_extruder infill_extruder solid_infill_extruder
