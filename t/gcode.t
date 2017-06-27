@@ -139,7 +139,7 @@ use Slic3r::Test;
     $config->set('temperature', [200]);
     $config->set('first_layer_temperature', [210]);
     my $print = Slic3r::Test::init_print('box', dim => [20, 20, 30], config => $config, duplicate => 2);
-    ok my $gcode = Slic3r::Test::gcode($print), "complete_objects";
+    ok $print->print->validate, "complete_objects";
 }
 
 
@@ -154,7 +154,7 @@ use Slic3r::Test;
     $config->set('temperature', [200]);
     $config->set('first_layer_temperature', [210]);
     my $print = Slic3r::Test::init_print('box', dim => [20, 20, 30], config => $config, duplicate => 2);
-    ok my $gcode = Slic3r::Test::gcode($print), "complete_objects";
+    ok $print->print->validate, "complete_objects";
 }
 
 {
