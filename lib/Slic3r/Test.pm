@@ -198,7 +198,7 @@ sub init_print {
             $print->add_model_object($model_object);
         }
     }
-    $print->validate;
+    $print->validate if !defined $params{novalidate};
     
     # We return a proxy object in order to keep $models alive as required by the Print API.
     return Slic3r::Test::Print->new(
