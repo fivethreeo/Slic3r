@@ -130,6 +130,34 @@ use Slic3r::Test;
 }
 
 {
+    # This tests the following behavior:
+    # - complete objects clearance height validation
+    my $config = Slic3r::Config->new_from_defaults;
+    $config->set('complete_objects', 1);
+    $config->set('layer_height', 0.4);
+    $config->set('first_layer_height', 0.4);
+    $config->set('temperature', [200]);
+    $config->set('first_layer_temperature', [210]);
+    my $print = Slic3r::Test::init_print('box', dim => [20, 20, 30], config => $config, duplicate => 2);
+    ok my $gcode = Slic3r::Test::gcode($print), "complete_objects";
+}
+
+
+{
+    # This tests the following behavior:
+    # - complete objects clearance height validation disabled
+    my $config = Slic3r::Config->new_from_defaults;
+    $config->set('complete_objects', 1);
+    $config->set('complete_objects_clearance', 1);
+    $config->set('layer_height', 0.4);
+    $config->set('first_layer_height', 0.4);
+    $config->set('temperature', [200]);
+    $config->set('first_layer_temperature', [210]);
+    my $print = Slic3r::Test::init_print('box', dim => [20, 20, 30], config => $config, duplicate => 2);
+    ok my $gcode = Slic3r::Test::gcode($print), "complete_objects";
+}
+
+{
     my $config = Slic3r::Config->new_from_defaults;
     $config->set('retract_length', [1000000]);
     $config->set('use_relative_e_distances', 1);
